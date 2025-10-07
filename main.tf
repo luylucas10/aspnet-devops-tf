@@ -39,6 +39,24 @@ resource "helm_release" "ingress_nginx" {
     azurerm_kubernetes_cluster.aks
   ]
 }
+resource "helm_release" "cert_manager" {
+  name             = "cert-manager"
+  repository       = "https://charts.jetstack.io"
+  chart            = "cert-manager"
+  namespace        = "cert-manager"
+  create_namespace = true
+  cleanup_on_fail  = true
+
+
+  set = [{
+    name  = "crds.enabled"
+    value = "true"
+  }]
+
+  depends_on = [
+    azurerm_kubernetes_cluster.aks
+  ]
+}
 
 provider "azurerm" {
   features {}
