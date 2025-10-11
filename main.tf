@@ -92,3 +92,67 @@ resource "helm_release" "cert_manager" {
     azurerm_kubernetes_cluster.aks
   ]
 }
+
+resource "helm_release" "argocd" {
+  name             = "argocd"
+  repository       = "https://argoproj.github.io/argo-helm"
+  chart            = "argo-cd"
+  namespace        = "argocd"
+  create_namespace = true
+  cleanup_on_fail  = true
+  set = [
+    {
+      name  = "global.domain"
+      value = "cd.mangotecnologia.com.br"
+    },
+    {
+      name  = "server.ingress.enabled"
+      value = "true"
+    },
+    {
+      name  = "server.ingress.tls"
+      value = "true"
+    },
+    {
+      name  = "server.ingress.ingressClassName"
+      value = "nginx"
+    },
+    {
+      name  = "server.ingressGrpc.enabled"
+      value = "true"
+    },
+    {
+      name  = "server.certificate.enabled"
+      value = "true"
+    },
+    {
+      name  = "server.certificate.issuer.group"
+      value = "cert-manager.io"
+    },
+
+    {
+      name  = "server.certificate.issuer.kind"
+      value = "ClusterIssuer"
+    },
+    {
+      name  = "server.certificate.issuer.name"
+      value = "letsencrypt-staging"
+    },
+    {
+      name  = "server.ingress.annotations.nginx\\.ingress\\.kubernetes\\.io/force-ssl-redirect"
+      value = "true"
+    },
+    {
+      name  = "server.ingress.annotations.nginx\\.ingress\\.kubernetes\\.io/ssl-passthrough"
+      value = "true"
+    },
+    {
+      name  = "server.ingress.annotations.nginx\\.ingress\\.kubernetes\\.io/backend-protocol"
+      value = "HTTPS"
+    }
+  ]
+
+  depends_on = [
+    azurerm_kubernetes_cluster.aks
+  ]
+}
